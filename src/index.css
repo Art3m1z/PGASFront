@@ -1,0 +1,324 @@
+@import url('../node_modules/materialize-css/dist/css/materialize.min');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css2?family=Commissioner:wght@100;200;300;400;500&display=swap');
+
+body {
+  overflow: unset !important;
+}
+
+::-webkit-scrollbar {
+  width: 15px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fff;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1565c0;
+  border-radius: 8px;
+  border: 4px solid #fff;
+}
+
+
+
+.px-4 {
+  padding: 0 40px;
+}
+
+.mt-4 {
+  margin-top: 40px;
+
+}
+
+.mr-4{
+  margin-right: 40px;
+}
+
+
+small {
+  color: rgb(150, 150, 150);
+  font-size: 18px;
+}
+
+.space-between {
+  display: flex;
+  justify-content: space-between;
+}
+
+.comment {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  margin-top: 1.4rem;
+}
+
+/* .row .col.s12{
+  width: 100%;
+} */
+
+.comment .avatar {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment .avatar img {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+}
+
+.comment .avatar span {
+  font-size: 1.5rem;
+  position: relative;
+  bottom: 5px;
+}
+
+.comment p {
+  margin-left: 2.2rem;
+  margin-top: 1.6rem;
+  font-size: 1.1rem;
+}
+
+.comment small {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 0.9rem;
+}
+
+.material-tooltip {
+  background: #1565c0;
+}
+
+.tooltip-img {
+  max-width: 500px;
+  max-height: 500px;
+  object-fit: contain;
+}
+
+.my-center {
+  width: 100%;
+  height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media screen and (max-width: 900px){
+  .btn-container {
+    float: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .btn-container:last-child {
+    height: 80px;
+  }
+
+  nav{
+    height: 120px;
+    width: 100%;
+    
+  }
+
+
+  .center-img{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .center-btn{
+    margin:3px;
+    margin-left:-25px;
+  }
+
+  .left{
+    margin-left: -5px;
+  }
+
+  .position{
+    top:-938px;
+    margin-bottom: 180%;
+  }
+
+  p{
+    line-break:loose;
+  }
+
+  .margin-bm{
+    margin-bottom: 8px;
+  }
+
+  .pos{
+    width: 55px;
+    height: 35px;
+    margin-top: 30px;
+  }
+
+}
+
+nav{
+  width: 100%
+  
+}
+
+.comment p{
+  display: block;
+  width: 80%;
+  overflow: hidden;
+  padding: 5px;
+  word-wrap: break-word;
+  white-space: normal;   
+}
+
+.table-width{
+  width: 100%;
+  
+}
+
+.text-center{
+  text-align: center;
+
+}
+
+
+.w-4{
+  width: 40%;
+}
+
+.w-3{
+  width: 30%;
+}
+
+.w-1{
+  width: 10%;
+}
+
+.edite-form {
+  width: 50%;
+  margin: 0% auto;
+  margin-bottom: 5%;
+  margin-top: 2%;
+}
+
+
+.edite-application-span{
+  color: black;
+}
+
+
+.div-checkbox{
+  width: 50%;
+}
+
+
+
+.small{
+  font-size: smaller;
+}
+
+.com-5{
+  font-family: 'Commissioner', sans-serif;
+  
+  font-weight: 500;
+
+}
+
+.com-4{
+  font-family: 'Commissioner', sans-serif;
+  
+  font-weight: 400;
+}
+.com-3{
+  font-family: 'Commissioner', sans-serif;
+  font-weight: 300;
+}
+.com-2{
+  font-family: 'Commissioner', sans-serif;
+  font-weight: 200;
+}
+
+.com-1{
+  font-family: 'Commissioner', sans-serif;
+  font-weight: 100;
+}
+
+h4{
+  font-family: 'Commissioner', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  padding-top: 3px;
+  margin: 2rem 0 0.912rem 0;
+}
+
+h3{
+  font-family: 'Commissioner', sans-serif;
+  font-weight: 300;
+}
+h2{
+  font-family: 'Commissioner', sans-serif;
+  font-weight: 200;
+}
+h1{
+  font-family: 'Commissioner', sans-serif;
+  font-weight: 100;
+}
+
+div.button-input-container > div > div.file-path-wrapper > input {
+  display: none !important;
+}
+
+
+.add-label {
+  color: white;
+  font-size: large;
+  
+}
+
+.displayed {
+  margin-left: auto;
+  margin-right: auto;
+  width: 20em;
+  
+}
+
+
+.required-files{
+  color: black;
+  font-style: italic;
+  font-weight: 600;
+}
+
+
+
+
+#criterion-div {
+  height: 600px;
+}
+
+#file-warning{
+  color: black;
+  font-size: small;
+}
+
+
+.checkbox{
+  border: 0.15em solid red;
+}   
+.btn-small{
+  width: 141.07px;
+}
+
+
+
+.MuiPagination-root{
+  background-color: #fff;
+}
+
+
+
+
