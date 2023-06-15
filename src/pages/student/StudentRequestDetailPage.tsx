@@ -12,7 +12,7 @@ import M from 'materialize-css'
 import "../../index.css"
 import { useFormater } from '../../hooks/useFormater'
 import $api from '../../http'
-import { bottom, end } from '@popperjs/core'
+import { bottom, end, eventListeners } from '@popperjs/core'
 
 
 export const StudentRequestDetailPage: FC = () => {
@@ -29,6 +29,13 @@ export const StudentRequestDetailPage: FC = () => {
   const [typeAchivement, setTypeAchivement] = useState<[]>([])
   const [stateAchivement, setStateAchivement] = useState<[]>([])
   const [levelAchivement, setLevelAchivement] = useState<[]>([])
+  const [achivementState, setAchivementState] = useState<Array<{
+    typeAchivement: [],
+    stateAchivement: [],
+    levelAchivement: [],
+    dictProgress: Number,
+
+  }>>([])
   const [message, setMessage] = useState('')
   const [files, setFiles] = useState<{ id: number; linkDocs: string, dateOn: Date }[]>([])
   const [isFilesLoaded, setIsFilesLoaded] = useState(false)
@@ -43,29 +50,38 @@ export const StudentRequestDetailPage: FC = () => {
     document: string
     score: number
   }[]>([])
+
   const [fileIamge, fileImageSet] = useState<File | null>()
   const [fileNameInput, fileNameInputSet] = useState('')
   const _ = useFormater()
   const navigate = useNavigate()
-  console.log(nominations)
-  const request = requests.find(r => r.id === Number(id1))
+
+  const request = requests.filter(r => r.id === Number(id1))[0]
   //@ts-ignore
   const achivement = request?.nomination?.progress['progress']
-  const selectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+
+  const selectChange = (event: React.ChangeEvent<HTMLSelectElement>, index: Number) => {
     //@ts-ignore
     const testAchivement = request?.nomination?.progress['progress'].filter(r => r.name === event.target.value)
-    console.log(testAchivement[0].id)
     //@ts-ignore
     setTypeAchivement(request?.nomination.viewProgress['viewProgress'].filter(r => r['dictprogress'] === testAchivement[0].id))
-    //@ts-ignore
-    setStateAchivement(request?.nomination.statusProgress['statusProgress'].filter(r => r['dictprogress'] === testAchivement[0].id))
-    //@ts-ignore
-    setLevelAchivement(request?.nomination.levelProgress['level'].filter(r => r['dictprogress'] === testAchivement[0].id))
+    const newArray = [...achivementState]
 
-  };
-  console.log('stateAchivement',stateAchivement)
-  console.log('levelAchivement',levelAchivement)
-  
+    newArray.push({
+      "dictProgress": testAchivement[0].id,
+      //@ts-ignore
+      "levelAchivement": request?.nomination.levelProgress['level'].filter(r => r['dictprogress'] === testAchivement[0].id),
+      //@ts-ignore
+      "stateAchivement": request?.nomination.statusProgress['statusProgress'].filter(r => r['dictprogress'] === testAchivement[0].id),
+      //@ts-ignore
+      "typeAchivement": request?.nomination.viewProgress['viewProgress'].filter(r => r['dictprogress'] === testAchivement[0].id),
+
+    })
+    setAchivementState(newArray)
+  }
+
+  console.log("componentInfo", componentInfo)
+  console.log("achivementState", achivementState)
   const loadFiles = async () => {
     const resp = await $api.get('/api/requests-files/get/?pk=' + request?.id)
     setFiles(resp.data)
@@ -116,9 +132,6 @@ export const StudentRequestDetailPage: FC = () => {
       })
     }
   }
-  useEffect(() => {
-    console.log(componentInfo)
-  }, [componentInfo])
 
   if (!request && isFilesLoaded) {
     return (
@@ -142,7 +155,6 @@ export const StudentRequestDetailPage: FC = () => {
       </>
     )
   }
-
   function formatDate(date: string | number | Date) {
     let d = new Date(date),
       month = '' + (d.getMonth() + 1),
@@ -259,66 +271,78 @@ export const StudentRequestDetailPage: FC = () => {
               {
 
                 componentInfo.map((element, index) => {
-                  if (request?.nomination !== undefined)
-                    return (
-                      <FormFieldTableRow
-                        achivement={element.achivement}
-                        documentNumber={element.documentNumber}
-                        score={element.score}
-                        dateAchivement={element.dateAchivement}
-                        miracle={achivement}
-                        levelMiracle={levelAchivement}
-                        stateMiracle={stateAchivement}
-                        typeMiracle={typeAchivement}
-                        selectChange={selectChange}
-                        onClickDelete={() => {
-                          const newArray = [...componentInfo]
-                          const removed = newArray.splice(index, 1)
-                          setComponentInfo(newArray)
-                        }}
-                        onChangeDocumentNumber={(e: { target: { value: any } }) => {
-                          const newArray = [...componentInfo]
-                          newArray[index].documentNumber = e.target.value
-                          setComponentInfo(newArray)
-                        }}
-                        onChangeAchivement={(e: { target: { value: any } }) => {
-                          const newArray = [...componentInfo]
-                          newArray[index].achivement = e.target.value
-                          setComponentInfo(newArray)
-                        }}
-                        onChangeScore={(e: { target: { value: any } }) => {
-                          const newArray = [...componentInfo]
-                          newArray[index].score = e.target.value
-                          setComponentInfo(newArray)
-                        }}
-                        onChangeDate={(e: { target: { value: any } }) => {
-                          const newArray = [...componentInfo]
-                          newArray[index].dateAchivement = e.target.value
-                          setComponentInfo(newArray)
-                        }}
+                  return (
+                    <FormFieldTableRow
+                      achivement={element.achivement}
+                      documentNumber={element.documentNumber}
+                      score={element.score}
+                      dateAchivement={element.dateAchivement}
+                      miracle={achivement}
+                      achivementmainState={achivementState}
+                      selectChange={selectChange}
+                      index={index}
+                      typeMiracle={element.typeMiracle}
+                      levelMiracle={element.levelMiracle}
+                      stateMiracle={element.stateMiracle}
+                      onClickDelete={() => {
+                        const newArray = [...componentInfo]
+                        const removed = newArray.splice(index, 1)
+                        setComponentInfo(newArray)
+                        const achivementArray = [...achivementState]
+                        achivementArray.splice(index, 1)
+                        setAchivementState(achivementArray)
+                      }}
+
+                      onChangeDocumentNumber={(e: { target: { value: any } }) => {
+                        const newArray = [...componentInfo]
+                        newArray[index].documentNumber = e.target.value
+                        setComponentInfo(newArray)
+                      }}
+
+                      onChangeAchivement={(e: { target: { value: any } }) => {
+                        const newArray = [...componentInfo]
+                        newArray[index].achivement = e.target.value
+                        setComponentInfo(newArray)
+                      }}
+
+                      onChangeScore={(e: { target: { value: any } }) => {
+                        const newArray = [...componentInfo]
+                        newArray[index].score = e.target.value
+                        setComponentInfo(newArray)
+                      }}
+
+                      onChangeDate={(e: { target: { value: any } }) => {
+                        const newArray = [...componentInfo]
+                        newArray[index].dateAchivement = e.target.value
+                        setComponentInfo(newArray)
+                      }}
 
                       onChangeMiracle={(e: { target: { value: any } }) => {
+
                         const newArray = [...componentInfo]
                         newArray[index].miracle = e.target.value
                         setComponentInfo(newArray)
                       }}
+
                       onChangeTypeMiracle={(e: { target: { value: any } }) => {
                         const newArray = [...componentInfo]
                         newArray[index].typeMiracle = e.target.value
                         setComponentInfo(newArray)
                       }}
+
                       onChangeLevelMiracle={(e: { target: { value: any } }) => {
                         const newArray = [...componentInfo]
                         newArray[index].levelMiracle = e.target.value
                         setComponentInfo(newArray)
                       }}
+
                       onChangeStateMiracle={(e: { target: { value: any } }) => {
                         const newArray = [...componentInfo]
                         newArray[index].stateMiracle = e.target.value
                         setComponentInfo(newArray)
                       }}
 
-                      />)
+                    />)
                 }
                 )
               }

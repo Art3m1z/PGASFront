@@ -110,7 +110,6 @@ export const RequestProvider = ({ children }: IProps) => {
 
       let resp = await $api.get(`/api/requests/get`)
       const requests = resp.data
-      console.log(requests)
 
 
       const statuses = [
@@ -122,7 +121,6 @@ export const RequestProvider = ({ children }: IProps) => {
         'Отправлено на доработку',
         'Отказать по решению Стипендиальной Комиссии',
       ]
-      console.log(requests)
       dispatch({
         type: 'SET_REQUESTS',
         payload: {

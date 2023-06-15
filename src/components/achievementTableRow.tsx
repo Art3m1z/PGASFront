@@ -21,16 +21,24 @@ interface FormAddTableRow {
     documentNumber: Number
     score: Number
     dateAchivement: Date
-
+    typeMiracle: string | undefined
+    levelMiracle: string | undefined
+    stateMiracle: string | undefined
+    
     miracle: []
-    levelMiracle: []
-    stateMiracle: []
-    typeMiracle: []
+    achivementmainState: Array<{}>
+    index: number
 }
 
 
 export const FormFieldTableRow: FC<FormAddTableRow> = (props: FormAddTableRow) => {
-    console.log(props.typeMiracle)
+    //@ts-ignore
+    const typeAchive = props.achivementmainState[props.index]?.typeAchivement
+    //@ts-ignore
+    const levelAchive = props.achivementmainState[props.index]?.levelAchivement
+    //@ts-ignore
+    const stateAchive = props.achivementmainState[props.index]?.stateAchivement
+
     return <tr>
         <td>
             <input
@@ -41,7 +49,7 @@ export const FormFieldTableRow: FC<FormAddTableRow> = (props: FormAddTableRow) =
             />
         </td>
         <td>
-            <select onChange={e => props.selectChange(e)} style={{ display: "block" }} >
+            <select onChange={e => props.selectChange(e, props.index)} style={{ display: "block" }} >
                 <option value="">--Выберите--</option>
                 {props.miracle.map(element => (
 
@@ -51,29 +59,31 @@ export const FormFieldTableRow: FC<FormAddTableRow> = (props: FormAddTableRow) =
         </td>
         <td>
             <select style={{ display: "block" }} onChange={e => props.onChangeTypeMiracle(e)} >
-                <option value="">--Выберите--</option>
-                {props.typeMiracle.map(element => (
-
+                <option selected>{props.typeMiracle ? props.typeMiracle : '--Выберите--'}</option>
+                {typeAchive?.map((element: { [x: string]: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined }) => (
                     <option>{element['name']}</option>
+
                 ))}
             </select>
         </td>
         <td>
             <select style={{ display: "block" }} onChange={e => props.onChangeLevelMiracle(e)} >
-                <option value="">--Выберите--</option>
-                {props.levelMiracle.map(element => (
-
+                <option selected>{props.levelMiracle ? props.levelMiracle : '--Выберите--'}</option>
+                {levelAchive?.map((element: { [x: string]: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined }) => (
                     <option>{element['name']}</option>
+
                 ))}
+
             </select>
         </td>
         <td>
             <select style={{ display: "block" }} onChange={e => props.onChangeStateMiracle(e)} >
-                <option value="">--Выберите--</option>
-                {props.stateMiracle.map(element => (
-
+                <option selected>{props.stateMiracle ? props.stateMiracle : '--Выберите--'}</option>
+                {stateAchive?.map((element: { [x: string]: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal | null | undefined }) => (
                     <option>{element['name']}</option>
+
                 ))}
+
             </select>
         </td>
         <td>
