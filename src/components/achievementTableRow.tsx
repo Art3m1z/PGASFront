@@ -15,6 +15,7 @@ interface FormAddTableRow {
     onChangeLevelMiracle: Function
     onChangeStateMiracle: Function
     onChangeTypeMiracle: Function
+    onChangeFile: Function
 
 
     achivement: string
@@ -24,7 +25,10 @@ interface FormAddTableRow {
     typeMiracle: string | undefined
     levelMiracle: string | undefined
     stateMiracle: string | undefined
-    
+    documentTitle: string | undefined
+    miracleAchivement: string | undefined
+
+
     miracle: []
     achivementmainState: Array<{}>
     index: number
@@ -50,7 +54,7 @@ export const FormFieldTableRow: FC<FormAddTableRow> = (props: FormAddTableRow) =
         </td>
         <td>
             <select onChange={e => props.selectChange(e, props.index)} style={{ display: "block" }} >
-                <option value="">--Выберите--</option>
+                <option selected>{props.miracleAchivement ? props.miracleAchivement : '--Выберите--'}</option>
                 {props.miracle.map(element => (
 
                     <option>{element['name']}</option>
@@ -124,19 +128,21 @@ export const FormFieldTableRow: FC<FormAddTableRow> = (props: FormAddTableRow) =
                     gap: "10px"
                 }} >
                     <label className='add-label'
-                        htmlFor="files">
+                        htmlFor={"files" + props.index}>
                         <i className='material-icons'
                             style={{ marginTop: "0.35em", fontSize: "24px" }}>
                             file_open
                         </i>
                     </label>
                     <input
+                        onChange={e => props.onChangeFile(e)}
                         hidden
                         className='hidden-input'
-                        id="files"
+                        id={"files" + props.index}
                         type='file' />
                 </div>
                 <input
+                    value={props.documentTitle}
                     style={{ width: "100%" }}
                     type={'text'}
                 />

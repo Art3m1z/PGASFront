@@ -165,6 +165,23 @@ export const RequestProvider = ({ children }: IProps) => {
                 },
 
               },
+              data:
+              r.data.map((d: any) => (
+                [{
+                  dateAchivement: new Date(d?.date_event), 
+                  levelMiracle: d?.level_progress,
+                  linckDocs: d?.linkDocs,
+                  achivement: d?.name,
+                  documentNumber: parseInt(d?.number_of_docs, 10),
+                  score: d?.point,
+                  miracle: d?.progress,
+                  stateMiracle: d?.status_progress,
+                  typeMiracle: d?.view_progress,
+                  
+                  }
+                ]
+              ))
+             ,
               createdDate: new Date(r.CreatedOn),
               changedDate: new Date(r.LastUpdate),
               comments: r.comments.map((c: any) => ({
@@ -294,8 +311,9 @@ export const RequestProvider = ({ children }: IProps) => {
   const setStatus = async (id: number, status: string) => {
     // fetch
 
-    await $api.put(`/api/requests/${id}/`, {
-      status: status,
+    await $api.put(`/api/requests/get/`, {
+      "status": status,
+      "id": id
     })
 
     dispatch({

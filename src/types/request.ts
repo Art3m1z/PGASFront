@@ -67,6 +67,23 @@ export interface INomination {
   }[]
 }
 
+
+export interface IDataInfoMiracle {
+  data: [{
+    dateAchivement: Date 
+    levelMiracle: string
+    linckDocs: string
+    achivement: string
+    documentNumber: number
+    score: number
+    miracle: string
+    stateMiracle: string
+    typeMiracle: string
+  }]
+}
+
+
+
 export interface IComment {
   name: string
   sendedDate: Date
@@ -107,6 +124,7 @@ export interface IRequest {
   }
   status: string
   nomination: INomination
+  data: IDataInfoMiracle[]
   subCriterion: {
     id: number
     name: string

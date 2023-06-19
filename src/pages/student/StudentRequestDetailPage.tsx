@@ -13,6 +13,7 @@ import "../../index.css"
 import { useFormater } from '../../hooks/useFormater'
 import $api from '../../http'
 import { bottom, end, eventListeners } from '@popperjs/core'
+import axios from 'axios'
 
 
 export const StudentRequestDetailPage: FC = () => {
@@ -20,15 +21,18 @@ export const StudentRequestDetailPage: FC = () => {
   const pointRef = useRef(null)
   const messageRef = useRef(null)
   const achivementRef = useRef(null)
+  const _ = useFormater()
+  const navigate = useNavigate()
 
   const { requests, fetchRequests, addComment, setStatus } = useContext(RequestContext)
   const { nominations } = useContext(CompanyContext)
   const { fio, avatarUrl, role, id } = useContext(AuthContext)
+  
+  const request = requests.filter(r => r.id === Number(id1))[0] 
+  
+  const  [achivementId, setAchivementId] = useState<number[]>([])
+  const  [achivementFileLink, setAchivementFileLink] = useState<string[]>([])
 
-
-  const [typeAchivement, setTypeAchivement] = useState<[]>([])
-  const [stateAchivement, setStateAchivement] = useState<[]>([])
-  const [levelAchivement, setLevelAchivement] = useState<[]>([])
   const [achivementState, setAchivementState] = useState<Array<{
     typeAchivement: [],
     stateAchivement: [],
@@ -40,31 +44,56 @@ export const StudentRequestDetailPage: FC = () => {
   const [files, setFiles] = useState<{ id: number; linkDocs: string, dateOn: Date }[]>([])
   const [isFilesLoaded, setIsFilesLoaded] = useState(false)
   const [componentInfo, setComponentInfo] = useState<{
-    documentNumber: number
+    documentNumber: number 
     achivement: string
     miracle: string
     typeMiracle: string
     levelMiracle: string
     stateMiracle: string
     dateAchivement: Date
-    document: string
+    document: File | null | undefined
+    documentTitle: string | undefined
     score: number
+    linckDocs: string
+    dataId: number | undefined
   }[]>([])
+  
+  const deleteRow = async (bodyId: number) => {
+    const resp = await $api.post('/api/requests/remove-data/',
+    {'id': id1, "bodyId": bodyId})
+  }
 
-  const [fileIamge, fileImageSet] = useState<File | null>()
-  const [fileNameInput, fileNameInputSet] = useState('')
-  const _ = useFormater()
-  const navigate = useNavigate()
+  const addRow = async (index: number) => {
+    const resp = await $api.post('/api/requests/add-row/',
+    {'id': id1}) 
+    setAchivementId(oldArray => [...oldArray, resp.data.id])
+  }
 
-  const request = requests.filter(r => r.id === Number(id1))[0]
+  const setImage = async (formData: FormData) => {
+    const resp = await $api.post('/api/set-image/', formData) 
+    setAchivementFileLink(oldArray => [...oldArray, resp.data.url])
+  }
+
+  const sendRequest = async () => {
+    const resp = await $api.post('/api/requests/save', {
+      "componentInfo": componentInfo,
+      "achivementId": achivementId,
+      "achivementFileLink": achivementFileLink,
+      "id": id1
+    }) 
+    setAchivementFileLink(oldArray => [...oldArray, resp.data.url])
+  }
+
   //@ts-ignore
   const achivement = request?.nomination?.progress['progress']
 
-  const selectChange = (event: React.ChangeEvent<HTMLSelectElement>, index: Number) => {
+  const selectChange = (event: React.ChangeEvent<HTMLSelectElement>, index: number) => {
+    const newArrayInfo = [...componentInfo]
+    newArrayInfo[index].miracle = event.target.value
+    setComponentInfo(newArrayInfo)
+
     //@ts-ignore
     const testAchivement = request?.nomination?.progress['progress'].filter(r => r.name === event.target.value)
-    //@ts-ignore
-    setTypeAchivement(request?.nomination.viewProgress['viewProgress'].filter(r => r['dictprogress'] === testAchivement[0].id))
     const newArray = [...achivementState]
 
     newArray.push({
@@ -79,19 +108,22 @@ export const StudentRequestDetailPage: FC = () => {
     })
     setAchivementState(newArray)
   }
-
-  console.log("componentInfo", componentInfo)
-  console.log("achivementState", achivementState)
   const loadFiles = async () => {
     const resp = await $api.get('/api/requests-files/get/?pk=' + request?.id)
     setFiles(resp.data)
 
   }
 
+  console.log( "componentInfo", componentInfo)
+  console.log( "request", request)
+  console.log( "achivementId", achivementId)
+  console.log( "achivementFileLink", achivementFileLink)
   useEffect(() => {
     if (requests.length) fetchRequests()
+    // if (request.data.length !== 0) {
+    //   setComponentInfo(request.data)
+    // }
   }, [])
-
   useEffect(() => {
     // @ts-ignore
     if (pointRef.current) pointRef.current.focus()
@@ -243,9 +275,16 @@ export const StudentRequestDetailPage: FC = () => {
                     'stateMiracle': "",
                     'dateAchivement': new Date,
                     'documentNumber': 0,
-                    'document': "",
+                    'document': null,
+                    "documentTitle": "",
                     'score': 0,
-                  }])
+                    'linckDocs': "",
+                    'dataId': 0
+
+                  }]); 
+                  addRow(componentInfo.length)
+                  
+                  
                 }}
                 className='btn light-blue darken-2 waves-effect waves-light center-btn com-4'>
                 Добавить достижение
@@ -278,19 +317,33 @@ export const StudentRequestDetailPage: FC = () => {
                       score={element.score}
                       dateAchivement={element.dateAchivement}
                       miracle={achivement}
+                      miracleAchivement={element.miracle}
                       achivementmainState={achivementState}
                       selectChange={selectChange}
                       index={index}
                       typeMiracle={element.typeMiracle}
                       levelMiracle={element.levelMiracle}
                       stateMiracle={element.stateMiracle}
+                      documentTitle={element.documentTitle}
+
                       onClickDelete={() => {
                         const newArray = [...componentInfo]
                         const removed = newArray.splice(index, 1)
                         setComponentInfo(newArray)
+
+                        const newArrayId = [...achivementId]
+                        newArrayId.splice(index, 1)
+                        setAchivementId(newArrayId)
+
                         const achivementArray = [...achivementState]
                         achivementArray.splice(index, 1)
-                        setAchivementState(achivementArray)
+                        setAchivementState(achivementArray);
+
+                        const achivementFile = [...achivementFileLink]
+                        achivementFile.splice(index, 1)
+                        setAchivementFileLink(achivementFile);
+
+                        deleteRow(achivementId[index])
                       }}
 
                       onChangeDocumentNumber={(e: { target: { value: any } }) => {
@@ -312,6 +365,7 @@ export const StudentRequestDetailPage: FC = () => {
                       }}
 
                       onChangeDate={(e: { target: { value: any } }) => {
+                        console.log(index)
                         const newArray = [...componentInfo]
                         newArray[index].dateAchivement = e.target.value
                         setComponentInfo(newArray)
@@ -341,6 +395,28 @@ export const StudentRequestDetailPage: FC = () => {
                         newArray[index].stateMiracle = e.target.value
                         setComponentInfo(newArray)
                       }}
+
+                      onChangeFile={async (
+                        e: { target: { files: any } }
+                      ) => {
+                        try {
+                          const fd = new FormData()
+                          const file = e.target.files![0]
+                          fd.append('image', file as File, file.name)
+                          const newArray = [...componentInfo]
+                          newArray[index].document = file
+                          newArray[index].documentTitle = file.name
+                          setComponentInfo(newArray);
+                          setImage(fd)
+
+                        } catch (e) {
+                          M.toast({
+                            html: `<span>Что-то пошло не так: <b>${e}</b></span>`,
+                            classes: 'red darken-4',
+                          })
+                        }
+                      }}
+
 
                     />)
                 }
@@ -574,7 +650,7 @@ export const StudentRequestDetailPage: FC = () => {
                     role,
                     id
                   )
-
+                  sendRequest()
                   M.toast({
                     html: '<span>Вы успешно выставили статус <strong>Отправлено на рассмотрение</strong> !</span>',
                     classes: 'light-blue darken-2 position',
