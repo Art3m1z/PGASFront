@@ -43,12 +43,13 @@ export const RequestPaginateProvider = ({ children } :IProps)=>{
         // fetch
   
         let resp =  await $api.get(`/api/requests/get/?page=${currentPage}`)
-        //console.log(resp.data)
+       
         const requests = resp.data.results
+        console.log(requests)
 
         const count = resp.data.count
   
-        let nom = await $api.get('/api/criterion/get/')
+        let nom = await $api.get('/api/nominations/get/')
         const nominations = nom.data
         //console.log(nominations)
   
@@ -88,41 +89,48 @@ export const RequestPaginateProvider = ({ children } :IProps)=>{
                   financingSource: r.student.source_finance,
                   level: r.student.level,
                   course: r.student.course,
-                  INN: r.student.INN,
-                  SNILS: r.student.SNILS,
-                  address: r.student.address,
-                  factaddress: r.student.factadress,
-                  citizenship: r.student.citizenship,
-    
-                  passport_seria: r.student.passport_seria,
-                  passport_number: r.student.passport_number,
-                  passport_IssueDate: r.student.passport_IssueDate,
-                  passport_IssueBy: r.student.passport_IssueBy,
-                  passport_DepartmentCode: r.student.passport_DepartmentCode,
                 },
                 status: r.last_status,
                 nomination: {
-                  name: r.criterion.name,
-                  docs: r.criterion.docs,
-                  paymentVPO: r.criterion.paymentVPO,
-                  paymentSPO: r.criterion.paymentSPO,
-                  payment_status: r.criterion.payment_status
+                  name: r.typeMiracle.name,
+                  id: r.typeMiracle.id,
+
+                  levelProgress:{
+                    level: r.typeMiracle.dict_level_progress,
+                  },
+                  progress:{
+                    progress:r.typeMiracle.dict_progress,
+                  },
+                  statusProgress:{
+                    statusProgress:r.typeMiracle.dict_status_progress,
+                  },
+                  viewProgress:{
+                    viewProgress: r.typeMiracle.dict_view_progress,
+                  },
                 },
-                subCriterion: {
-                  criterion: r.sub_criterion?.criterion,
-                  id: r.sub_criterion?.id,
-                  name: r.sub_criterion?.name,
-                  paymentSPO: r.sub_criterion?.paymentSPO,
-                  paymentVPO: r.sub_criterion?.paymentVPO,
-                  user_chose: r.sub_criterion?.user_chose
-                },
+
+                data: {data: r.data.map((d:any)=>(
+                  {
+                    dateAchivement:new Date(d?.date_event),
+                    levelMiracle:d?.level_progress,
+                    linckDocs: d?.linkDocs,
+                    achivement:d?.name,
+                    documentNumber: parseInt(d?.number_of_docs, 10),
+                    score: d?.point,
+                    miracle:d?.progress,
+                    stateMiracle: d?.status_progress,
+                    typeMiracle:d?.view_progress,
+                    dataId: d?.id
+                  }
+                ))},
+
                 createdDate: new Date(r.CreatedOn),
                 changedDate: new Date(r.LastUpdate),
                 comments: r.comments.map((c: any) => ({
                   name: c.student
-                    ? `${c.student.lastname} ${c.student.firstname} ${c.student.patronymic}`
-                    : `${c.admin.lastname} ${c.admin.firstname} ${c.admin.patronymic}`,
-                  imageUrl: c.student ? c.student.avatar : c.admin.avatar,
+                    ? `${c.student?.lastname} ${c.student?.firstname} ${c.student?.patronymic}`
+                    : `${c.admin?.lastname} ${c.admin?.firstname} ${c.admin?.patronymic}`,
+                  imageUrl: c.student ? c.student?.avatar : c.admin?.avatar,
                   sendedDate: new Date(c.created_at),
                   text: c.text,
                 })),

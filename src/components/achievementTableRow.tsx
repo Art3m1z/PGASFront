@@ -17,16 +17,17 @@ interface FormAddTableRow {
     onChangeTypeMiracle: Function
     onChangeFile: Function
 
-
+    requestStatus: string
     achivement: string
     documentNumber: Number
     score: Number
-    dateAchivement: Date
+    dateAchivement: string
     typeMiracle: string | undefined
     levelMiracle: string | undefined
     stateMiracle: string | undefined
     documentTitle: string | undefined
     miracleAchivement: string | undefined
+    linckDocs: string
 
 
     miracle: []
@@ -140,12 +141,28 @@ export const FormFieldTableRow: FC<FormAddTableRow> = (props: FormAddTableRow) =
                         className='hidden-input'
                         id={"files" + props.index}
                         type='file' />
+
                 </div>
+
                 <input
                     value={props.documentTitle}
-                    style={{ width: "100%" }}
+                    style={{ width: "100%", display: "flex" }}
                     type={'text'}
+
                 />
+                {props.requestStatus === "Отправлено на доработку" && props.linckDocs !== '' ?
+                    <div style={{ height: "20px" }} >
+                        <p style={{ marginTop: "2em", marginRight: "0em", width: "0px", fontSize: "10px" }}><a
+                            className='waves-effect waves-light  tooltipped'
+                            href={props.linckDocs}
+                            data-position='top'
+                            data-tooltip-img={props.linckDocs}
+                        >Текущий файл </a></p>
+                    </div> :
+                    <div></div>
+                }
+
+
             </div>
 
 
@@ -157,12 +174,14 @@ export const FormFieldTableRow: FC<FormAddTableRow> = (props: FormAddTableRow) =
                 value={props.score}
                 placeholder={'0'}
                 type={'number'}
+                readOnly
             />
         </td>
         <td>
             <a style={{ float: 'right' }}
                 className='btn-floating btn-small waves-effect waves-light red'
                 onClick={e => props.onClickDelete(e)}
+
             >
                 <i className="material-icons">
                     delete

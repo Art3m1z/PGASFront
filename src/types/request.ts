@@ -1,17 +1,17 @@
 import { Type } from 'typescript'
 import { Role } from './auth'
 import { ICompany } from './companies'
- 
+
 
 const setPoints = (
   id: number,
   subRId: number,
   rowIdx: number,
   points: number
-) => {}
-const setStatus = (id: number, status: string) => {}
-const fetchSubCriterion = () => {}
-const fetchRequests = () => {}
+) => { }
+const setStatus = (id: number, status: string) => { }
+const fetchSubCriterion = () => { }
+const fetchRequests = () => { }
 const addComment = (
   id: number,
   name: string,
@@ -19,11 +19,11 @@ const addComment = (
   text: string,
   role: Role,
   userId: number
-) => {}
+) => { }
 const addRequest = (
   companyId: number,
   nomination: string,
-) => {}
+) => { }
 const addNomination = (
   id: string,
   name: string,
@@ -33,7 +33,7 @@ const addNomination = (
   payment_status: boolean,
   sub_criterion: Array<object>
 
-) => {}
+) => { }
 
 
 const editeNomination = (
@@ -45,10 +45,10 @@ const editeNomination = (
   payment_status: boolean,
   sub_criterion: Array<object>
 
-) => {}
-const removeNomination = (id: string) => {}
+) => { }
+const removeNomination = (id: string) => { }
 
-const removeRequest = (id: string) => {}
+const removeRequest = (id: string) => { }
 
 
 
@@ -59,9 +59,9 @@ export interface INomination {
   name: string
   levelProgress: {
   }[]
-  progress: { 
+  progress: {
   }[]
-  statusProgress: { 
+  statusProgress: {
   }[]
   viewProgress: {
   }[]
@@ -69,17 +69,22 @@ export interface INomination {
 
 
 export interface IDataInfoMiracle {
-  data: [{
-    dateAchivement: Date 
-    levelMiracle: string
-    linckDocs: string
-    achivement: string
-    documentNumber: number
-    score: number
-    miracle: string
-    stateMiracle: string
-    typeMiracle: string
-  }]
+  data: IInfoMiracle[]
+}
+
+export interface IInfoMiracle {
+  dateAchivement: string
+  levelMiracle: string
+  linckDocs: string
+  achivement: string
+  documentNumber: number
+  score: number
+  miracle: string
+  stateMiracle: string
+  typeMiracle: string
+  document: File | null | undefined
+  documentTitle: string | undefined
+  dataId: number | undefined
 }
 
 
@@ -98,11 +103,11 @@ export interface IRequest {
     id: number
     endDate: Date
     startDate: Date
-  
+
   }
   student: {
     id: number
-    fio: string 
+    fio: string
     institute: string | undefined
     direction: string | undefined
     educationForm: string | undefined
@@ -124,7 +129,7 @@ export interface IRequest {
   }
   status: string
   nomination: INomination
-  data: IDataInfoMiracle[]
+  data: IDataInfoMiracle
   subCriterion: {
     id: number
     name: string

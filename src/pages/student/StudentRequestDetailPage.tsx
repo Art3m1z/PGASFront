@@ -14,6 +14,7 @@ import { useFormater } from '../../hooks/useFormater'
 import $api from '../../http'
 import { bottom, end, eventListeners } from '@popperjs/core'
 import axios from 'axios'
+import { IInfoMiracle, IRequest } from '../../types/request'
 
 
 export const StudentRequestDetailPage: FC = () => {
@@ -27,12 +28,11 @@ export const StudentRequestDetailPage: FC = () => {
   const { requests, fetchRequests, addComment, setStatus } = useContext(RequestContext)
   const { nominations } = useContext(CompanyContext)
   const { fio, avatarUrl, role, id } = useContext(AuthContext)
-  
-  const request = requests.filter(r => r.id === Number(id1))[0] 
-  
-  const  [achivementId, setAchivementId] = useState<number[]>([])
-  const  [achivementFileLink, setAchivementFileLink] = useState<string[]>([])
 
+  const request: IRequest = requests.filter(r => r.id === Number(id1))[0]
+
+  const [achivementId, setAchivementId] = useState<number[]>([])
+  const [achivementFileLink, setAchivementFileLink] = useState<string[]>([])
   const [achivementState, setAchivementState] = useState<Array<{
     typeAchivement: [],
     stateAchivement: [],
@@ -40,47 +40,36 @@ export const StudentRequestDetailPage: FC = () => {
     dictProgress: Number,
 
   }>>([])
+
+
   const [message, setMessage] = useState('')
   const [files, setFiles] = useState<{ id: number; linkDocs: string, dateOn: Date }[]>([])
   const [isFilesLoaded, setIsFilesLoaded] = useState(false)
-  const [componentInfo, setComponentInfo] = useState<{
-    documentNumber: number 
-    achivement: string
-    miracle: string
-    typeMiracle: string
-    levelMiracle: string
-    stateMiracle: string
-    dateAchivement: Date
-    document: File | null | undefined
-    documentTitle: string | undefined
-    score: number
-    linckDocs: string
-    dataId: number | undefined
-  }[]>([])
-  
+  const [componentInfo, setComponentInfo] = useState<IInfoMiracle[]>([])
+
   const deleteRow = async (bodyId: number) => {
     const resp = await $api.post('/api/requests/remove-data/',
-    {'id': id1, "bodyId": bodyId})
+      { 'id': id1, "bodyId": bodyId })
   }
 
   const addRow = async (index: number) => {
     const resp = await $api.post('/api/requests/add-row/',
-    {'id': id1}) 
+      { 'id': id1 })
     setAchivementId(oldArray => [...oldArray, resp.data.id])
   }
 
   const setImage = async (formData: FormData) => {
-    const resp = await $api.post('/api/set-image/', formData) 
+    const resp = await $api.post('/api/set-image/', formData)
     setAchivementFileLink(oldArray => [...oldArray, resp.data.url])
   }
 
   const sendRequest = async () => {
-    const resp = await $api.post('/api/requests/save', {
+    const resp = await $api.post('/api/requests/save/', {
       "componentInfo": componentInfo,
       "achivementId": achivementId,
       "achivementFileLink": achivementFileLink,
       "id": id1
-    }) 
+    })
     setAchivementFileLink(oldArray => [...oldArray, resp.data.url])
   }
 
@@ -109,20 +98,18 @@ export const StudentRequestDetailPage: FC = () => {
     setAchivementState(newArray)
   }
   const loadFiles = async () => {
-    const resp = await $api.get('/api/requests-files/get/?pk=' + request?.id)
+    const resp = await $api.get('/api/requests-files/get/?pk=' + request.id)
     setFiles(resp.data)
 
   }
-
-  console.log( "componentInfo", componentInfo)
-  console.log( "request", request)
-  console.log( "achivementId", achivementId)
-  console.log( "achivementFileLink", achivementFileLink)
+  console.log(achivementState)
+  console.log(componentInfo)
   useEffect(() => {
     if (requests.length) fetchRequests()
-    // if (request.data.length !== 0) {
-    //   setComponentInfo(request.data)
-    // }
+    if (request.data) {
+      console.log(request.data.data)
+      setComponentInfo(request.data.data)
+    }
   }, [])
   useEffect(() => {
     // @ts-ignore
@@ -187,17 +174,12 @@ export const StudentRequestDetailPage: FC = () => {
       </>
     )
   }
-  function formatDate(date: string | number | Date) {
-    let d = new Date(date),
-      month = '' + (d.getMonth() + 1),
-      day = '' + d.getDate(),
-      year = d.getFullYear();
-
-    if (month.length < 2)
-      month = '0' + month;
-    if (day.length < 2)
-      day = '0' + day;
-    return [year, month, day].join('-');;
+  function formatDate(date: string) {
+    let d = new Date(date);
+    const formatDate = d.getDate() < 10 ? `0${d.getDate()}` : d.getDate();
+    const formatMonth = d.getMonth() < 10 ? `0${d.getMonth()}` : d.getMonth();
+    const formattedDate = [d.getFullYear(), formatMonth, formatDate].join('-');
+    return formattedDate;
   }
 
   const endDate = new Date(Date.parse(String(request?.company.endDate)))
@@ -208,7 +190,7 @@ export const StudentRequestDetailPage: FC = () => {
 
       <StudentHeader />
       <div style={{ alignSelf: "center" }} className='container' >
-        <MediaQuery minWidth={1200}>
+        <MediaQuery minWidth={120}>
           <h3 className='mt-4'>Информация о заявлении</h3>
           <table className='responsive-table com-4'>
             <thead>
@@ -229,7 +211,7 @@ export const StudentRequestDetailPage: FC = () => {
             </tbody>
           </table>
         </MediaQuery>
-        <MediaQuery minWidth={1200}>
+        <MediaQuery minWidth={120}>
           <h3 className='mt-4'>Информация о студенте</h3>
           <table className='responsive-table table-width com-4'>
             <thead>
@@ -261,34 +243,40 @@ export const StudentRequestDetailPage: FC = () => {
 
 
         </MediaQuery>
-        <MediaQuery minWidth={1200}>
+        <MediaQuery minWidth={120}>
           <div style={{ boxShadow: "0px 0px 0px 0px" }}>
             <h3 className='mt-4'>Достижения
-              <button
-                style={{ float: "right", marginTop: "0.9em" }}
-                onClick={() => {
-                  setComponentInfo(oldArray => [...oldArray, {
-                    'achivement': "",
-                    'miracle': "",
-                    'typeMiracle': "",
-                    'levelMiracle': "",
-                    'stateMiracle': "",
-                    'dateAchivement': new Date,
-                    'documentNumber': 0,
-                    'document': null,
-                    "documentTitle": "",
-                    'score': 0,
-                    'linckDocs': "",
-                    'dataId': 0
+              {request.status === "Черновик" || request.status === "Отправлено на доработку" ?
+                <button
+                  style={{ float: "right", marginTop: "0.9em" }}
+                  onClick={() => {
+                    setComponentInfo(oldArray => [...oldArray, {
+                      'achivement': "",
+                      'miracle': "",
+                      'typeMiracle': "",
+                      'levelMiracle': "",
+                      'stateMiracle': "",
+                      'dateAchivement': '',
+                      'documentNumber': 0,
+                      'document': null,
+                      "documentTitle": "",
+                      'score': 0,
+                      'linckDocs': "",
+                      'dataId': 0
 
-                  }]); 
-                  addRow(componentInfo.length)
-                  
-                  
-                }}
-                className='btn light-blue darken-2 waves-effect waves-light center-btn com-4'>
-                Добавить достижение
-              </button>
+                    }]);
+                    addRow(componentInfo.length)
+
+
+                  }}
+                  className='btn light-blue darken-2 waves-effect waves-light center-btn com-4'>
+                  Добавить достижение
+                </button>
+                 :
+                 <div></div>
+            }
+
+
             </h3>
 
           </div>
@@ -307,7 +295,7 @@ export const StudentRequestDetailPage: FC = () => {
               </tr>
             </thead>
             <tbody>
-              {
+              {request.status === "Черновик" || request.status === "Отправлено на доработку" ?
 
                 componentInfo.map((element, index) => {
                   return (
@@ -315,7 +303,7 @@ export const StudentRequestDetailPage: FC = () => {
                       achivement={element.achivement}
                       documentNumber={element.documentNumber}
                       score={element.score}
-                      dateAchivement={element.dateAchivement}
+                      dateAchivement={formatDate(element.dateAchivement)}
                       miracle={achivement}
                       miracleAchivement={element.miracle}
                       achivementmainState={achivementState}
@@ -325,6 +313,8 @@ export const StudentRequestDetailPage: FC = () => {
                       levelMiracle={element.levelMiracle}
                       stateMiracle={element.stateMiracle}
                       documentTitle={element.documentTitle}
+                      requestStatus={request.status}
+                      linckDocs={element.linckDocs}
 
                       onClickDelete={() => {
                         const newArray = [...componentInfo]
@@ -342,8 +332,8 @@ export const StudentRequestDetailPage: FC = () => {
                         const achivementFile = [...achivementFileLink]
                         achivementFile.splice(index, 1)
                         setAchivementFileLink(achivementFile);
-
-                        deleteRow(achivementId[index])
+                        {element.dataId ? deleteRow(element.dataId) : deleteRow(achivementId[index]) }
+                        
                       }}
 
                       onChangeDocumentNumber={(e: { target: { value: any } }) => {
@@ -421,6 +411,39 @@ export const StudentRequestDetailPage: FC = () => {
                     />)
                 }
                 )
+                :
+                componentInfo.map((element, index) => {
+                  return (
+                    <tr>
+                      <td>{element.achivement}</td>
+                      <td>{element.miracle}</td>
+                      <td>{element.typeMiracle}</td>
+                      <td>{element.levelMiracle}</td>
+                      <td>{element.stateMiracle}</td>
+                      <td>{formatDate(element.dateAchivement)}</td>
+                      <td>{element.documentNumber}</td>
+                      <td>
+                        <div className='row'>
+                          <div className='col s2'>
+                            <a
+                              key={element.dataId}
+                              className='waves-effect waves-light btn light-blue darken-1 tooltipped'
+                              href={element.linckDocs}
+                              data-position='top'
+                              data-tooltip-img={element.linckDocs}
+                            >
+                              <i className='material-icons'>insert_drive_file</i>
+                            </a>
+                            <td><small className='small'>{element.linckDocs ? element.linckDocs.substring(element.linckDocs.lastIndexOf('/') + 1) : ""}</small></td>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        {element.score}
+                      </td>
+                    </tr>
+                  )
+                })
               }
 
               {/* <FormFieldTableRow/> */}

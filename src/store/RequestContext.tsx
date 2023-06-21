@@ -3,7 +3,7 @@ import React, { createContext, ReactElement, useReducer } from 'react'
 import $api from '../http'
 import { Role } from '../types/auth'
 import { IAction } from '../types/companies'
-import { IRequestState, IRequest } from '../types/request'
+import { IRequestState, IRequest, IInfoMiracle } from '../types/request'
 
 const initialState: IRequestState = {
   requests: [],
@@ -165,9 +165,8 @@ export const RequestProvider = ({ children }: IProps) => {
                 },
 
               },
-              data:
-              r.data.map((d: any) => (
-                [{
+              data: {data: r.data.map((d: any) => (
+                {
                   dateAchivement: new Date(d?.date_event), 
                   levelMiracle: d?.level_progress,
                   linckDocs: d?.linkDocs,
@@ -177,11 +176,11 @@ export const RequestProvider = ({ children }: IProps) => {
                   miracle: d?.progress,
                   stateMiracle: d?.status_progress,
                   typeMiracle: d?.view_progress,
+                  dataId: d?.id
                   
                   }
-                ]
-              ))
-             ,
+                
+              )) },
               createdDate: new Date(r.CreatedOn),
               changedDate: new Date(r.LastUpdate),
               comments: r.comments.map((c: any) => ({

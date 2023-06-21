@@ -19,7 +19,6 @@ export const AdminRequestListPage: FC = () => {
   const { requests,count,nominations, statuses, fetchPagginatedRequests } = useContext(AdminRequestPaginateContext)
  
   const [currentPage, setCurrentPage] = useState(1);
-  const [maxPages, setMaxPages] = useState(100);
   const [maxPageLimit, setMaxPageLimit] = useState(2);
   const [qs, setQs] = useState<{
     id: undefined | number
@@ -320,7 +319,7 @@ export const AdminRequestListPage: FC = () => {
                 setS2(event.target.value)
               }}
             >
-              <option value={-1}>Все критерии</option>
+              <option value={-1}>Все номинации</option>
               {nominations.map(n => {
                 return (
                   <option
@@ -333,7 +332,7 @@ export const AdminRequestListPage: FC = () => {
                 )
               })}
             </select>
-            <label className='com-4'>Критерий</label>
+            <label className='com-4'>Номинация</label>
           </div>
           <div className='col s3 input-field'>
             <select
@@ -399,7 +398,7 @@ export const AdminRequestListPage: FC = () => {
           <thead>
             <tr>
               <th>ФИО</th>
-              <th>Критерий</th>
+              <th>Номинация</th>
               <th>Институт</th>
               <th>Направление</th>
               <th>Обучение</th>

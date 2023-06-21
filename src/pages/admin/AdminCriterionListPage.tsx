@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useRef, useState } from 'react'
+	import React, { FC, useContext, useEffect, useRef, useState } from 'react'
 import { AdminHeader } from '../../components/Header'
 import { AdminRequestPaginateContext } from '../../store/AdminRequestContext'
 import { RequestContext } from '../../store/RequestContext'
@@ -13,7 +13,7 @@ import axios from 'axios'
 export const AdminCriterionListPage: FC = () => {
   const { addNomination, editeNomination, removeNomination } =
     useContext(RequestContext)
-  const { nominations, fetchPagginatedRequests } = useContext(AdminRequestPaginateContext)
+  const {nominations, fetchPagginatedRequests} = useContext(AdminRequestPaginateContext)
   const createModalRef = useRef(null)
   const editModalRef = useRef(null)
   const nominationRef = useRef(null)
@@ -30,7 +30,7 @@ export const AdminCriterionListPage: FC = () => {
     docs: undefined | string
     paymentVPO: undefined | number
     paymentSPO: undefined | number
-    payment_status: undefined | boolean
+    payment_status:undefined | boolean
   }>({
     id: undefined,
     name: undefined,
@@ -72,20 +72,20 @@ export const AdminCriterionListPage: FC = () => {
 
   const editClickHandler = (id: string) => {
     const nomination = nominations.find(c => c.id === id)
-    setEditData({
+      setEditData({
       id,
-      name: nomination?.name,
+      name: nomination?.name, 
       docs: nomination?.docs,
       paymentVPO: nomination?.paymentVPO,
       paymentSPO: nomination?.paymentSPO,
       payment_status: nomination?.payment_status
     })
-
-    if (nomination === undefined) {
-      setSubArray([])
-    } else {
-      setSubArray(nomination.sub_criterion)
-    }
+    
+    // if (nomination === undefined){
+    //   setSubArray([])
+    // }else{
+    //   setSubArray(nomination.sub_criterion)
+    // }
 
     const i = M.Modal.getInstance(editModalRef.current!)
     i.open()
@@ -124,7 +124,7 @@ export const AdminCriterionListPage: FC = () => {
       setLoading(false)
     }
   }, [nominations])
-
+ 
 
   useEffect(() => {
     M.FormSelect.init(nominationRef.current!)
@@ -133,12 +133,12 @@ export const AdminCriterionListPage: FC = () => {
   useEffect(() => {
     M.Modal.init(createModalRef.current!)
     M.Modal.init(editModalRef.current!)
-
+    
   }, [loading])
 
 
   const modalEditClickHandler = () => {
-    if (editData.name !== undefined && editData.paymentVPO !== undefined && editData.paymentSPO !== undefined) {
+    if (editData.name !== undefined && editData.paymentVPO !== undefined && editData.paymentSPO !== undefined ) {
       try {
         editeNomination(
           editData.id!,
@@ -153,13 +153,13 @@ export const AdminCriterionListPage: FC = () => {
         i.close()
 
         fetchPagginatedRequests(1)
-
+        
         return M.toast({
           html: `<span>Критерий <b>${editData.name}</b> был успешно изменён!</span>`,
           classes: 'light-blue darken-1',
         })
-      } catch (e) {
-
+      } catch (e) { 
+        
         return M.toast({
           html: `<span>Что-то пошло не так: <b>${e}</b></span>`,
           classes: 'red darken-4',
@@ -195,7 +195,7 @@ export const AdminCriterionListPage: FC = () => {
     )
   }
 
-
+  
 
   return (
     <div>
@@ -220,22 +220,22 @@ export const AdminCriterionListPage: FC = () => {
                 <td>{n.paymentVPO}</td>
                 <td>{n.paymentSPO}</td>
                 <td>
-                  <a
-                    className='btn light-blue darken-2 waves-effect waves-light'
-                    onClick={() => {
-                      editClickHandler(n.id)
-                      setCheckboxValue(n.payment_status)
-                      const i = M.Modal.getInstance(editModalRef.current!)
-                      i.open()
-                    }}
-                  >Редактировать
-                  </a>
+                    <a
+                      className='btn light-blue darken-2 waves-effect waves-light'
+                      onClick={() => {
+                        editClickHandler(n.id)
+                        setCheckboxValue(n.payment_status)
+                        const i = M.Modal.getInstance(editModalRef.current!)
+                        i.open()
+                      }}
+                    >Редактировать
+                    </a>
                 </td>
                 <td>
                   <a
                     className='waves-effect red darken-3 btn-small btn'
                     onClick={() => {
-
+                      
                       removeNomination(n.id)
                       fetchPagginatedRequests(1)
                     }}
@@ -326,93 +326,93 @@ export const AdminCriterionListPage: FC = () => {
             <label htmlFor='spo'>Выплата за СПО</label>
           </div>
           <CheckboxWithValue
-            value={checkboxValue}
-            label='Для коммерции'
-            onChange={(e: any) => {
-              setCheckboxValue(e.target.checked)
-              setFormData(prev => ({
-                ...prev,
-                payment_status: e.target.checked
-              }))
-            }}
+              value={checkboxValue}
+              label='Для коммерции'
+              onChange={(e: any) => {
+                setCheckboxValue(e.target.checked)
+                setFormData(prev => ({
+                    ...prev,
+                    payment_status: e.target.checked
+                }))
+              } }
 
           />
-
-          <div style={{ margin: '2.5% 0%' }} >
-            <h6>Подкритерии</h6>
+          
+          <div style={{margin: '2.5% 0%'}} >
+          <h6>Подкритерии</h6>
           </div>
           <div>
+              
+              {
+                
+                componentInfo.map((element, index) => {
+                    return (
+                      
+                      <FormFieldSubCriterion
+                      onClickDelete={() => {
+                        const newArray = [...componentInfo]
+                        newArray.splice(index, 1) 
+                        setComponentInfo(newArray) 
+                      }}
+                      onChangeName={(e: { target: { value: any } }) => {
+                        const newArray = [...componentInfo]
+                        newArray[index].name = e.target.value
+                        setComponentInfo(newArray)
+                      }}
+                      onChangePaymentVo={(e: {target: {value: any}}) => {
+                        const newArray = [...componentInfo]
+                        newArray[index].paymentVo = e.target.value
+                        setComponentInfo(newArray)
+                      }}
 
-            {
+                      onChangePaymentSpo={(e: {target: {value: any}}) => {
+                        const newArray = [...componentInfo]
+                        newArray[index].paymentSpo = e.target.value
 
-              componentInfo.map((element, index) => {
-                return (
-
-                  <FormFieldSubCriterion
-                    onClickDelete={() => {
-                      const newArray = [...componentInfo]
-                      newArray.splice(index, 1)
-                      setComponentInfo(newArray)
-                    }}
-                    onChangeName={(e: { target: { value: any } }) => {
-                      const newArray = [...componentInfo]
-                      newArray[index].name = e.target.value
-                      setComponentInfo(newArray)
-                    }}
-                    onChangePaymentVo={(e: { target: { value: any } }) => {
-                      const newArray = [...componentInfo]
-                      newArray[index].paymentVo = e.target.value
-                      setComponentInfo(newArray)
-                    }}
-
-                    onChangePaymentSpo={(e: { target: { value: any } }) => {
-                      const newArray = [...componentInfo]
-                      newArray[index].paymentSpo = e.target.value
-
-                      setComponentInfo(newArray)
-                    }}
-                    name={element.name}
-                    paymentVo={element.paymentVo}
-                    paymentSpo={element.paymentSpo}
-
-                  />)
+                        setComponentInfo(newArray)
+                      }}
+                      name = {element.name}
+                      paymentVo = {element.paymentVo} 
+                      paymentSpo = {element.paymentSpo}
+                      
+                      />)
+                }
+                 )
               }
-              )
-            }
 
           </div>
 
           <div style={{
             margin: "2.5% 0%"
           }} >
-            <button className='btn light-blue darken-2 waves-effect waves-light'
-              onClick={() => {
-                setComponentInfo(oldArray => [...oldArray, { name: '', paymentVo: 0, paymentSpo: 0 }])
-              }}
+          <button className='btn light-blue darken-2 waves-effect waves-light'
+                  onClick={() => {
+                    setComponentInfo(oldArray => [...oldArray, {name: '', paymentVo: 0, paymentSpo: 0}])
+                  }}
 
-            >
-              <i className='material-icons left'>add</i>
-              Добавить подкритерий
-            </button>
-          </div>
+          >
+          <i className='material-icons left'>add</i>
+            Добавить подкритерий
+                </button>
+                </div>
         </div>
         <div className='modal-footer'>
           <button
 
             className='btn light-blue darken-2 waves-effect waves-light'
-            onClick={() => {
-              addNomination(
-                formData.id,
-                formData.name,
-                formData.docs,
-                Number(formData.paymentVPO),
-                Number(formData.paymentSPO),
-                formData.payment_status,
-                componentInfo,
-              )
-              fetchPagginatedRequests(1)
-            }
-            }
+            onClick={() =>{
+                  addNomination(
+                    formData.id,
+                    formData.name,
+                    formData.docs,
+                    Number(formData.paymentVPO),
+                    Number(formData.paymentSPO),
+                    formData.payment_status,
+                    componentInfo,
+                      )
+                    fetchPagginatedRequests(1)
+                }
+              }
           >
             <i className='material-icons left'>save</i>
             Добавить критерий
@@ -422,7 +422,7 @@ export const AdminCriterionListPage: FC = () => {
 
       {/* edit modal */}
       <div ref={editModalRef} className='modal'>
-        <div className='modal-content'>
+        <div className='modal-content'> 
           <h4>
             Изменить критерий <strong>{editData.name}</strong>
           </h4>
@@ -486,76 +486,76 @@ export const AdminCriterionListPage: FC = () => {
             />
             <label htmlFor='spo'>Выплата СПО</label>
           </div>
-
+       
 
           <CheckboxWithValue
-            value={checkboxValue}
-            label='Для коммерции'
-            onChange={(e: any) => {
-              setCheckboxValue(e.target.checked)
-              setEditData(prev => ({
-                ...prev,
-                payment_status: e.target.checked
-              }))
-            }}
+              value={checkboxValue}
+              label='Для коммерции'
+              onChange={(e: any) => {
+                setCheckboxValue(e.target.checked)
+                setEditData(prev => ({
+                    ...prev,
+                    payment_status: e.target.checked
+                }))
+              } }
 
           />
 
-          <div>
+            <div>
+              
+              {
+                
+                subArray.map((element, index) => {
+                    return (
+                      
+                      <FormFieldSubCriterion
+                      onClickDelete={() => {
+                        const newArray = [...subArray]
+                        newArray.splice(index, 1) 
+                        setSubArray(newArray) 
+                      }}
+                      onChangeName={(e: { target: { value: any } }) => {
+                        const newArray = [...subArray]
+                        newArray[index].name = e.target.value
+                        setSubArray(newArray)
+                      }}
+                      onChangePaymentVo={(e: {target: {value: any}}) => {
+                        const newArray = [...subArray]
+                        newArray[index].paymentVPO = e.target.value
+                        setSubArray(newArray)
+                      }}
 
-            {
+                      onChangePaymentSpo={(e: {target: {value: any}}) => {
+                        const newArray = [...subArray]
+                        newArray[index].paymentSPO = e.target.value
 
-              subArray.map((element, index) => {
-                return (
-
-                  <FormFieldSubCriterion
-                    onClickDelete={() => {
-                      const newArray = [...subArray]
-                      newArray.splice(index, 1)
-                      setSubArray(newArray)
-                    }}
-                    onChangeName={(e: { target: { value: any } }) => {
-                      const newArray = [...subArray]
-                      newArray[index].name = e.target.value
-                      setSubArray(newArray)
-                    }}
-                    onChangePaymentVo={(e: { target: { value: any } }) => {
-                      const newArray = [...subArray]
-                      newArray[index].paymentVPO = e.target.value
-                      setSubArray(newArray)
-                    }}
-
-                    onChangePaymentSpo={(e: { target: { value: any } }) => {
-                      const newArray = [...subArray]
-                      newArray[index].paymentSPO = e.target.value
-
-                      setSubArray(newArray)
-                    }}
-                    name={element.name}
-                    paymentVo={element.paymentVPO}
-                    paymentSpo={element.paymentSPO}
-
-                  />)
+                        setSubArray(newArray)
+                      }}
+                      name = {element.name}
+                      paymentVo = {element.paymentVPO} 
+                      paymentSpo = {element.paymentSPO}
+                      
+                      />)
+                }
+                 )
               }
-              )
-            }
 
-          </div>
+            </div>
 
-          <div style={{
-            margin: "2.5% 0%"
-          }} >
+            <div style={{
+              margin: "2.5% 0%"
+            }} >
             <button className='btn light-blue darken-2 waves-effect waves-light'
-              onClick={() => {
-                setSubArray(oldArray => [...oldArray, { name: '', paymentVPO: 0, paymentSPO: 0, criterion: undefined, id: undefined, user_chose: undefined }])
-              }}
+                    onClick={() => {
+                      setSubArray(oldArray => [...oldArray, {name: '', paymentVPO: 0, paymentSPO: 0, criterion: undefined, id: undefined, user_chose: undefined}])
+                    }}
 
             >
-              <i className='material-icons left'>add</i>
+            <i className='material-icons left'>add</i>
               Добавить подкритерий
-            </button>
-          </div>
-
+                  </button>
+            </div>
+        
           <div className='modal-footer'>
             <button
               className='btn light-blue darken-2 waves-effect waves-light'

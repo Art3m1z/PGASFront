@@ -9,42 +9,51 @@ import { useFormater } from '../../hooks/useFormater'
 import $api from '../../http'
 import { Link } from 'react-router-dom'
 import { IRequestDetail } from '../../types/admindetailpage'
+import { IInfoMiracle, IRequest } from '../../types/request'
 
 export const AdminRequestDetailPage: FC = () => {
   const { id1 } = useParams()
   const messageRef = useRef(null)
   const btnRef = useRef(null)
-  const [loading, setLoading] = useState(false)
+  //const [loading, setLoading] = useState(false)
   const [requestDetail, setRequestDetail] = useState<IRequestDetail>();
-  const { requests, fetchPagginatedRequests} =
-    useContext(AdminRequestPaginateContext)
   const {addComment, setStatus} = useContext(RequestContext)
+  const { requests, count, nominations, statuses } = useContext(AdminRequestPaginateContext)
+
   const { fio, avatarUrl, role, id } = useContext(AuthContext)
+  
   const request = requests.find(r => r.id === Number(id1))
   const [message, setMessage] = useState('')
   const _ = useFormater()
   const modalRef = useRef(null)
   const navigate = useNavigate()
-  const [files, setFiles] = useState<{ id: number; linkDocs: string, dateOn: Date }[]>([])
+  const [achivementIdAdmin, setAchivementIdAdmin] = useState<number[]>([])
+  const [files, setFiles] = useState<string>('')
   const [isFilesLoaded, setIsFilesLoaded] = useState(false)
+  const [componentInfoAdmin, setComponentInfoAdmin] = useState<IInfoMiracle[]>([])
 
-  const loadFiles = async () => {
-    const resp = await $api.get('/api/requests-files/get/?pk=' + id1)
 
-    setFiles(resp.data)
+  const sendRequest = async (dataId: number  | undefined, score: number) => {
+    const resp = await $api.post('/api/requests/set-admin-row-point/', {
+        "dataId": dataId,
+        "score": score,
+    })
   }
-
-  const fetchDetailRequest = async () => {
-    setLoading(true)
-    const resp = await $api.get(`/api/requests/${id1}/`).then((resp) => {setRequestDetail(resp.data); setLoading(false)})
+  console.log(request)
+  // const fetchDetailRequest = async () => {
+  //   setLoading(true)
+  //   const resp = await $api.get(`/api/requests/`).then((resp) => {console.log(resp.data); setLoading(false)})
     
-  }
-  console.log(id)
+    
+  // }
   
   useEffect(() => {
-    fetchDetailRequest()
+    if (request?.data.data) {
+        setComponentInfoAdmin(request.data.data)
+    } 
     
   }, [])
+  console.log(componentInfoAdmin)
   useEffect(() => {
     if (modalRef.current) {
       M.Modal.init(modalRef.current!)
@@ -55,10 +64,10 @@ export const AdminRequestDetailPage: FC = () => {
       toolbarEnabled: true,
     })
 
-    if (requestDetail && !isFilesLoaded) {
-      loadFiles().then(() => setIsFilesLoaded(true))
-    }
-  }, [requestDetail, isFilesLoaded])
+    // if (requestDetail && !isFilesLoaded) {
+    //   loadFiles().then(() => setIsFilesLoaded(true))
+    // }
+  }, [request, isFilesLoaded])
   useEffect(() => {
     document.querySelectorAll('.tooltipped').forEach(el => {
       const url = el.getAttribute('data-tooltip-img')
@@ -90,7 +99,7 @@ export const AdminRequestDetailPage: FC = () => {
         })
 
       addComment(requestDetail?.id!, fio, avatarUrl, message, role, id)
-      fetchDetailRequest()
+      // fetchDetailRequest()
       setMessage('')
       M.toast({
         html: 'Вы успешно оставили комментарий!',
@@ -103,20 +112,15 @@ export const AdminRequestDetailPage: FC = () => {
       // })
     }
   }
-  console.log(loading)
-  function formatDate(date: string | number | Date) {
-    let d = new Date(date),
-      month = '' + (d.getMonth() + 1),
-      day = '' + d.getDate(),
-      year = d.getFullYear();
-
-    if (month.length < 2)
-      month = '0' + month;
-    if (day.length < 2)
-      day = '0' + day;
-    return [year, month, day].join('-');;
+  function formatDate(date: string) {
+    let d = new Date(date);
+    const formatDate = d.getDate() < 10 ? `0${d.getDate()}`:d.getDate();
+    const formatMonth = d.getMonth() < 10 ? `0${d.getMonth()}`: d.getMonth();
+    const formattedDate = [d.getFullYear(), formatMonth, formatDate].join('-');
+    return formattedDate;
   }
-  if (requestDetail === undefined && isFilesLoaded === false || loading === true) {
+ 
+  if (!request) {
     return (
       <>
         <AdminHeader />
@@ -149,24 +153,24 @@ export const AdminRequestDetailPage: FC = () => {
             <tr>
               <th>Кампания</th>
               <th>Критерий</th>
-              <th>подкритерий</th>
               <th>Статус</th>
               <th>Дата создания</th>
+              <th>Дата последнего изменения</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>{requestDetail?.compaing.name}</td>
-              <td>{requestDetail?.criterion?.name}</td>
-              <td>{requestDetail?.sub_criterion?.name}</td>
-              <td>{requestDetail?.last_status}</td>
-              <td>{requestDetail?.CreatedOn.slice(0,10)}</td>
+              <td>{request.company.name}</td>
+              <td>{request.nomination.name}</td>
+              <td>{request.status}</td>
+              <td>{_(request.createdDate)}</td>
+              <td>{_(request.changedDate)}</td>
               
             </tr>
           </tbody>
         </table>
         <h3 className='mt-4'>Информация о студенте</h3>
-        <Link to={`/edit-application/${requestDetail?.id}`}><button className='btn light-blue darken-2'>Редактировать</button></Link>
+        {/* <Link to={`/edit-application/${requestDetail?.id}`}><button className='btn light-blue darken-2'>Редактировать</button></Link> */}
         <table className='responsive-table'>
           <thead>
             <tr>
@@ -178,93 +182,85 @@ export const AdminRequestDetailPage: FC = () => {
               <th>Источник финансирования</th>
               <th>Уровень образования</th>
               <th>Курс</th>
-              <th>ИНН</th>
-              <th>СНИЛС</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>{`${requestDetail?.student.lastname} ${requestDetail?.student.firstname} ${requestDetail?.student.patronymic}`}</td>
-              <td>{requestDetail?.student.phone}</td>
-              <td>{requestDetail?.student.institut}</td>
-              <td>{requestDetail?.student.profile}</td>
-              <td>{requestDetail?.student.form}</td>
-              <td>{requestDetail?.student.source_finance}</td>
-              <td>{requestDetail?.student.level}</td>
-              <td>{requestDetail?.student.course}</td>
-              <td>{requestDetail?.student.INN}</td>
-              <td>{requestDetail?.student.SNILS}</td>
-              <td>{requestDetail?.student.address}</td>
+              <td>{request?.student?.fio}</td>
+              <td>{request?.student?.phone}</td>
+              <td>{request?.student?.institute}</td>
+              <td>{request?.student?.direction}</td>
+              <td>{request?.student?.educationForm}</td>
+              <td>{request?.student?.financingSource}</td>
+              <td>{request?.student?.level}</td>
+              <td>{request?.student?.course}</td>
             </tr>
           </tbody>
         </table>
 
-        <h3 className='mt-4'>Персональные данные студента</h3>
-        <table className='responsive-table centered table-width com-4'>
-          <thead>
-            <tr>
-                  <th className='w-3' >Адрес проживания</th>
-                  <th className='w-1' >Гражданство</th>
-                  <th className='w-1'>Серия и номер паспорта</th>
-                  <th className='w-4' >Кем и когда выдан</th>
-                  <th className='w-1'>Код департамента</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-            <td className='text-center'>{requestDetail?.student.factadress}</td>
-              
-              <td className='text-center'>{requestDetail?.student.citizenship}</td>
-              <td className='text-center'>
-                {requestDetail?.student.passport_seria}{' '}
-                {requestDetail?.student.passport_number}
-              </td>
-              <td className='text-center'>
-                {requestDetail?.student.passport_IssueBy}{' '}
-                {requestDetail?.student.passport_IssueDate}
-              </td>
-              <td className='text-center'>{requestDetail?.student.passport_DepartmentCode}</td>
-            </tr>
-          </tbody>
-
-        </table>
-
-        <h3 className='mt-4'>Критерии</h3>
+        <h3 className='mt-4'>Достижения</h3>
         <table className='responsive-table'>
           <thead>
             <tr>
-              <th>Название</th>
-              <th>Файлы</th>
+              <th>Наименование достижения</th>
+              <th>Достижение</th>
+              <th>Вид достижения</th>
+              <th>Уровень достиженя</th>
+              <th>Статус достижения</th>
+              <th>Дата меропрития</th>
+              <th>Номер документа</th>
+              <th>Документ</th>
+              <th>Баллы</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>{requestDetail?.criterion?.name}</td>
-              <td>
-                <div className='row'>
-                  {files.map(f => (
-                    
-                    <div className='col s2'>
-                      <td>
-                          <small className='small' >{formatDate(f.dateOn).toLocaleString()}</small>
-                          
-                      </td>
-                      <a
-                        key={f.id}
-                        className='waves-effect waves-light btn light-blue darken-1 tooltipped'
-                        href={f.linkDocs}
-                        data-position='top'
-                        data-tooltip-img={f.linkDocs}
-                      >
-                        <i className='material-icons'>insert_drive_file</i>
-                      </a>
-                      <td><small className='small'>{f.linkDocs.substring(f.linkDocs.lastIndexOf('/') + 1)}</small></td>
-                    </div>
-                  ))}
-                </div>
-              </td>
-            </tr>
-          </tbody>
+          {componentInfoAdmin.map((r,index)=>{
+              console.log(index)
+              return (
+                <tbody>
+                <tr>
+                  <td>{r.achivement}</td>
+                  <td>{r.miracle}</td>
+                  <td>{r.typeMiracle}</td>
+                  <td>{r.levelMiracle}</td>
+                  <td>{r.stateMiracle}</td>
+                  <td>{formatDate(r.dateAchivement)}</td>
+                  <td>{r.documentNumber}</td>
+                  <td>
+                        <div className='row'>                    
+                          <div className='col s2'>
+                          <a
+                            key={r.dataId}
+                            className='waves-effect waves-light btn light-blue darken-1 tooltipped'
+                            href={r.linckDocs}
+                            data-position='top'
+                            data-tooltip-img={r.linckDocs}
+                          >
+                          <i className='material-icons'>insert_drive_file</i>
+                        </a>
+                          <td><small className='small'>{r.linckDocs ? r.linckDocs.substring(r.linckDocs.lastIndexOf('/') + 1) : ""}</small></td>
+                        </div>
+                      </div>
+                    </td>
+                  <td>
+                    <input
+                        onChange={(e: { target: { value: any } }) => {
+                          const newArray = [...componentInfoAdmin]
+                          newArray[index].score = e.target.value
+                          setComponentInfoAdmin(newArray)
+                          sendRequest(r.dataId, e.target.value)
+                        }}
+                        //@ts-ignore
+                        value={r.score}
+                        id={"point" + index}
+                        placeholder={'0'}
+                        type={'number'}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+              )
+          
+              })}
         </table>
         {/* <button
           className='btn light-blue darken-2 waves-effect waves-light'
@@ -276,7 +272,7 @@ export const AdminRequestDetailPage: FC = () => {
         </button> */}
         <h3 className='mt-4'>Комментарии</h3>
         <div>
-          {requestDetail?.comments.map((c, idx) => {
+          {requestDetail?.comments?.map((c, idx) => {
             return (
               <div key={idx} className='comment'>
                 <div className='avatar'>
@@ -379,7 +375,7 @@ export const AdminRequestDetailPage: FC = () => {
                         html: '<span>Вы успешно выставили статус <strong>Принято</strong> !</span>',
                         classes: 'light-blue darken-1',
                       });
-                      fetchDetailRequest();
+                      // fetchDetailRequest();
                     } catch (e) {
                       M.toast({
                         html: `<span>Что-то пошло не так: <b>${e}</b></span>`,
@@ -411,7 +407,7 @@ export const AdminRequestDetailPage: FC = () => {
                         html: '<span>Вы успешно выставили статус <strong>Получение выплаты</strong> !</span>',
                         classes: 'light-blue darken-1',
                       });
-                      fetchDetailRequest();
+                      // fetchDetailRequest();
                     } catch (e) {
                       M.toast({
                         html: `<span>Что-то пошло не так: <b>${e}</b></span>`,
@@ -447,7 +443,7 @@ export const AdminRequestDetailPage: FC = () => {
                         html: '<span>Вы успешно выставили статус <strong>Отказать по решению Стипендиальной Комиссии</strong> !</span>',
                         classes: 'light-blue darken-1',
                       });
-                      fetchDetailRequest();
+                      // fetchDetailRequest();
 
                     } catch (e) {
                       M.toast({

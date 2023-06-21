@@ -49,10 +49,10 @@ $api.interceptors.response.use(
     // @ts-ignore
     else if(error.response?.status === 400 && error.config && !error._isRetry)
         {
-          M.toast({
-            html: `<span>Размер файла не должен превышать 10МБ!</span>`,
-            classes: 'red darken-4 position',
-          })
+          // M.toast({
+          //   html: `<span>Размер файла не должен превышать 10МБ!</span>`,
+          //   classes: 'red darken-4 position',
+          // })
         }
 
    else{

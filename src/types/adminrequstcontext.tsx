@@ -1,6 +1,7 @@
 import { Type } from 'typescript'
 import { Role } from './auth'
 import { ICompany } from './companies'
+import { IDataInfoMiracle } from './request'
  
 
 
@@ -14,17 +15,7 @@ interface INomination {
   payment_status: boolean
   subNomination: {
     id: number
-    name: string
-    paymentVPO: number
-    paymentSPO: number   
-  }
-  sub_criterion: {
-    user_chose: number
-    criterion: number
-    id: number
-    name: string
-    paymentVPO: number
-    paymentSPO: number   
+    name: string  
   }[]
 }
 
@@ -54,20 +45,10 @@ export interface IRequest {
     financingSource: string | undefined
     level: string | undefined
     course: string | number | undefined
-    INN: string | undefined
-    SNILS: string | undefined
-    address: string | undefined
-    factadress: string | undefined
-    citizenship: string | undefined
-
-    passport_seria: string | undefined
-    passport_number: string | undefined
-    passport_IssueDate: string | undefined
-    passport_IssueBy: string | undefined
-    passport_DepartmentCode: string | undefined
   }
   status: string
   nomination: INomination
+  data: IDataInfoMiracle
   subCriterion: {
     id: number
     name: string

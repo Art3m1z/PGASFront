@@ -1,31 +1,25 @@
 import { Type } from 'typescript'
 import { Role } from './auth'
 import { ICompany } from './companies'
+import { IDataInfoMiracle, IInfoMiracle } from './request'
  
 const fetchDetailRequest = (id:number|undefined) => {}
 
 export interface INomination {
   id: string
   name: string
-  docs: string
-  paymentVPO: number
-  paymentSPO: number
-  payment_status: boolean
-  subNomination: {
-    id: number
-    name: string
-    paymentVPO: number
-    paymentSPO: number   
-  }
-  sub_criterion: {
-    user_chose: number
-    criterion: number
-    id: number
-    name: string
-    paymentVPO: number
-    paymentSPO: number   
+  levelProgress:{
+  }[]
+  progress:{
+  }[]
+  statusProgress:{
+  }[]
+  viewProgress:{
   }[]
 }
+
+
+
 
 export interface IComment {
   admin:{
@@ -47,17 +41,6 @@ export interface IComment {
     source_finance: string | undefined
     level: string | undefined
     course: string | number | undefined
-    INN: string | undefined
-    SNILS: string | undefined
-    address: string | undefined
-    fatcaddress: string | undefined
-    citizenship: string | undefined
-
-    passport_seria: string | undefined
-    passport_number: string | undefined
-    passport_IssueDate: string | undefined
-    passport_IssueBy: string | undefined
-    passport_DepartmentCode: string | undefined
 
   }
   created_at: Date
@@ -76,30 +59,18 @@ export interface IRequestDetail {
   }
   student: {
     id: number
-    lastname:string
-    patronymic:string
-    firstname:string
-    institut: string | undefined
-    profile: string | undefined
-    form: string | undefined
+    fio: string 
+    institute: string | undefined
+    direction: string | undefined
+    educationForm: string | undefined
     phone: string | undefined
-    source_finance: string | undefined
+    financingSource: string | undefined
     level: string | undefined
     course: string | number | undefined
-    INN: string | undefined
-    SNILS: string | undefined
-    address: string | undefined
-    factadress: string | undefined
-    citizenship: string | undefined
-
-    passport_seria: string | undefined
-    passport_number: string | undefined
-    passport_IssueDate: string | undefined
-    passport_IssueBy: string | undefined
-    passport_DepartmentCode: string | undefined
   }
   last_status: string
   criterion: INomination
+  data: IDataInfoMiracle
   sub_criterion: {
     id: number
     name: string
@@ -108,7 +79,7 @@ export interface IRequestDetail {
     paymentVPO: number
     paymentSPO: number
   } | null
-  CreatedOn: string
+  createdDate: Date
   changedDate: Date
   comments: IComment[]
 }
@@ -121,3 +92,5 @@ export interface IRequestDetailState {
 
   fetchDetailRequest: typeof fetchDetailRequest
 }
+
+export type { IDataInfoMiracle }
