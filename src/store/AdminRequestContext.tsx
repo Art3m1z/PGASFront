@@ -13,6 +13,8 @@ const initialState: IRequestPagState = {
     count: 0,
   
     fetchPagginatedRequests: () => { },
+    addComment: () => { },
+    setStatus: ()=>{ },
 }
 
 interface IProps{
@@ -29,10 +31,40 @@ const reducer = (
           ...state,
           ...payload,
         }
-      default:
+      case 'ADD_COMMENT':
+
+        return {
+          ...state,
+          requests: state.requests.map(r => {
+            if (r.id === payload.id) {
+              r.comments.push({
+                name: payload.name,
+                imageUrl: payload.imageUrl,
+                text: payload.text,
+                sendedDate: new Date(),
+              })
+            }
+  
+            return r
+          }),
+        }
+        case 'SET_STATUS':
+          return {
+            ...state,
+            requests: state.requests.map(r => {
+              console.log(payload)
+              if (r.id === payload.id) {
+                r.status = payload.status
+              }
+    
+              return r
+            }),
+          }
+    default:
         return state
-    }
   }
+}
+
   
 export const AdminRequestPaginateContext = createContext(initialState)
 export const RequestPaginateProvider = ({ children } :IProps)=>{
@@ -145,6 +177,52 @@ export const RequestPaginateProvider = ({ children } :IProps)=>{
       } catch (e) {
           console.log(e)
       }
+
+
+    }
+    const addComment = async (
+      id: number,
+      name: string,
+      imageUrl: string,
+      text: string,
+      role: Role,
+      userId: number
+    ) => {
+      // fetch
+  
+      await $api.post('/api/comments/create/', {
+        role,
+        text,
+        id,
+        user_id: userId,
+      })
+  
+      dispatch({
+        type: 'ADD_COMMENT',
+        payload: {
+          id,
+          name,
+          imageUrl,
+          text,
+        },
+      })
+    }
+
+  const setStatus = async (id: number, status: string) => {
+      // fetch
+  
+      await $api.put(`/api/requests/get/`, {
+        "status": status,
+        "id": id
+      })
+  
+      dispatch({
+        type: 'SET_STATUS',
+        payload: {
+          id,
+          status,
+        },
+      })
     }
 
     return(
@@ -152,6 +230,8 @@ export const RequestPaginateProvider = ({ children } :IProps)=>{
             value={{
                 ...state,
                 fetchPagginatedRequests,
+                setStatus,
+                addComment
             }}
             
         >

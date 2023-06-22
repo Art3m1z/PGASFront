@@ -43,6 +43,7 @@ const reducer = (
         ...state,
       }
     case 'ADD_COMMENT':
+
       return {
         ...state,
         requests: state.requests.map(r => {
@@ -67,6 +68,7 @@ const reducer = (
       return {
         ...state,
         requests: state.requests.map(r => {
+          console.log(payload)
           if (r.id === payload.id) {
             r.status = payload.status
           }
@@ -74,6 +76,7 @@ const reducer = (
           return r
         }),
       }
+    
     case 'ADD_NOMINATION':
       return {
         ...state,
@@ -98,6 +101,7 @@ const reducer = (
       return state
   }
 }
+
 
 export const RequestContext = createContext(initialState)
 
@@ -167,7 +171,7 @@ export const RequestProvider = ({ children }: IProps) => {
               },
               data: {data: r.data.map((d: any) => (
                 {
-                  dateAchivement: new Date(d?.date_event), 
+                  dateAchivement: d?.date_event, 
                   levelMiracle: d?.level_progress,
                   linckDocs: d?.linkDocs,
                   achivement: d?.name,
@@ -399,7 +403,7 @@ export const RequestProvider = ({ children }: IProps) => {
   }
 
   const removeRequest = async (id: string) => {
-    await $api.delete(`/api/requests/${id}/`)
+    await $api.delete(`/api/requests/get/${id}`)
 
     dispatch({
       type: 'REMOVE_REQUEST',

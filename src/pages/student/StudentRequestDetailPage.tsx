@@ -58,9 +58,14 @@ export const StudentRequestDetailPage: FC = () => {
     setAchivementId(oldArray => [...oldArray, resp.data.id])
   }
 
-  const setImage = async (formData: FormData) => {
-    const resp = await $api.post('/api/set-image/', formData)
-    setAchivementFileLink(oldArray => [...oldArray, resp.data.url])
+  const setImage = async (formData: FormData, index: number) => {
+
+    const resp = await $api.post('/api/set-image/', formData).then((resp) => {
+      const newArray = [...achivementFileLink]
+      newArray[index] = resp?.data?.url
+      setAchivementFileLink(newArray)
+    })
+
   }
 
   const sendRequest = async () => {
@@ -70,7 +75,6 @@ export const StudentRequestDetailPage: FC = () => {
       "achivementFileLink": achivementFileLink,
       "id": id1
     })
-    setAchivementFileLink(oldArray => [...oldArray, resp.data.url])
   }
 
   //@ts-ignore
@@ -97,29 +101,41 @@ export const StudentRequestDetailPage: FC = () => {
     })
     setAchivementState(newArray)
   }
-  const loadFiles = async () => {
-    const resp = await $api.get('/api/requests-files/get/?pk=' + request.id)
-    setFiles(resp.data)
 
+  function formatDate(date: string) {
+    let d = new Date(date);
+    const formatDate = d.getDate() < 10 ? `0${d.getDate()}` : d.getDate();
+    const formatMonth = d.getMonth() < 10 ? `0${d.getMonth()}` : d.getMonth();
+    const formattedDate = [d.getFullYear(), formatMonth, formatDate].join('-');
+    return formattedDate;
   }
-  console.log(achivementState)
-  console.log(componentInfo)
+  console.log(achivementFileLink)
   useEffect(() => {
-    if (requests.length) fetchRequests()
     if (request.data) {
-      console.log(request.data.data)
       setComponentInfo(request.data.data)
+      request.data.data.map((element) => {
+
+        //@ts-ignore
+        const testAchivement = request?.nomination?.progress['progress'].filter(r => r.name === element.miracle)
+        const newArray = [...achivementState]
+
+        newArray.push({
+          "dictProgress": testAchivement[0]?.id,
+          //@ts-ignore
+          "levelAchivement": request?.nomination?.levelProgress['level'].filter(r => r['dictprogress'] === testAchivement[0]?.id),
+          //@ts-ignore
+          "stateAchivement": request?.nomination?.statusProgress['statusProgress'].filter(r => r['dictprogress'] === testAchivement[0]?.id),
+          //@ts-ignore
+          "typeAchivement": request?.nomination?.viewProgress['viewProgress'].filter(r => r['dictprogress'] === testAchivement[0]?.id),
+
+        })
+        setAchivementState(newArray)
+        setAchivementFileLink(oldArray => [...oldArray, element?.linckDocs])
+        setAchivementId(oldIdArray => [...oldIdArray, element?.dataId])
+      })
+
     }
   }, [])
-  useEffect(() => {
-    // @ts-ignore
-    if (pointRef.current) pointRef.current.focus()
-    M.CharacterCounter.init(messageRef.current!)
-
-    if (request && !isFilesLoaded) {
-      loadFiles().then(() => setIsFilesLoaded(true))
-    }
-  }, [request, isFilesLoaded])
 
   useEffect(() => {
     document.querySelectorAll('.tooltipped').forEach(el => {
@@ -152,6 +168,7 @@ export const StudentRequestDetailPage: FC = () => {
     }
   }
 
+  console.log(componentInfo)
   if (!request && isFilesLoaded) {
     return (
       <>
@@ -174,13 +191,7 @@ export const StudentRequestDetailPage: FC = () => {
       </>
     )
   }
-  function formatDate(date: string) {
-    let d = new Date(date);
-    const formatDate = d.getDate() < 10 ? `0${d.getDate()}` : d.getDate();
-    const formatMonth = d.getMonth() < 10 ? `0${d.getMonth()}` : d.getMonth();
-    const formattedDate = [d.getFullYear(), formatMonth, formatDate].join('-');
-    return formattedDate;
-  }
+
 
   const endDate = new Date(Date.parse(String(request?.company.endDate)))
   const statusApplication = (request?.status == "Черновик" || request?.status == "Отправлено на доработку") && endDate != undefined && endDate > new Date();
@@ -247,7 +258,7 @@ export const StudentRequestDetailPage: FC = () => {
           <div style={{ boxShadow: "0px 0px 0px 0px" }}>
             <h3 className='mt-4'>Достижения
               {request.status === "Черновик" || request.status === "Отправлено на доработку" ?
-                <button
+                <><button
                   style={{ float: "right", marginTop: "0.9em" }}
                   onClick={() => {
                     setComponentInfo(oldArray => [...oldArray, {
@@ -263,8 +274,7 @@ export const StudentRequestDetailPage: FC = () => {
                       'score': 0,
                       'linckDocs': "",
                       'dataId': 0
-
-                    }]);
+                    }])
                     addRow(componentInfo.length)
 
 
@@ -272,9 +282,18 @@ export const StudentRequestDetailPage: FC = () => {
                   className='btn light-blue darken-2 waves-effect waves-light center-btn com-4'>
                   Добавить достижение
                 </button>
-                 :
-                 <div></div>
-            }
+                  <button
+                    className='btn light-blue darken-2 waves-effect waves-light center-btn com-4'
+                    style={{ float: "right",  marginTop: "0.9em", marginRight: "1em" }}
+                    onClick={() => {
+                      sendRequest()
+                    }}
+                    >
+                    Сохранить изменения
+                  </button></>
+                :
+                <div></div>
+              }
 
 
             </h3>
@@ -332,8 +351,8 @@ export const StudentRequestDetailPage: FC = () => {
                         const achivementFile = [...achivementFileLink]
                         achivementFile.splice(index, 1)
                         setAchivementFileLink(achivementFile);
-                        {element.dataId ? deleteRow(element.dataId) : deleteRow(achivementId[index]) }
-                        
+                        { element.dataId ? deleteRow(element.dataId) : deleteRow(achivementId[index]) }
+
                       }}
 
                       onChangeDocumentNumber={(e: { target: { value: any } }) => {
@@ -357,7 +376,7 @@ export const StudentRequestDetailPage: FC = () => {
                       onChangeDate={(e: { target: { value: any } }) => {
                         console.log(index)
                         const newArray = [...componentInfo]
-                        newArray[index].dateAchivement = e.target.value
+                        newArray[index].dateAchivement = formatDate(e.target.value)
                         setComponentInfo(newArray)
                       }}
 
@@ -390,6 +409,7 @@ export const StudentRequestDetailPage: FC = () => {
                         e: { target: { files: any } }
                       ) => {
                         try {
+                          console.log(index)
                           const fd = new FormData()
                           const file = e.target.files![0]
                           fd.append('image', file as File, file.name)
@@ -397,7 +417,7 @@ export const StudentRequestDetailPage: FC = () => {
                           newArray[index].document = file
                           newArray[index].documentTitle = file.name
                           setComponentInfo(newArray);
-                          setImage(fd)
+                          setImage(fd, index)
 
                         } catch (e) {
                           M.toast({
@@ -693,7 +713,7 @@ export const StudentRequestDetailPage: FC = () => {
 
           : <div></div>
         }
-
+ 
         <div style={{ height: 100 }}></div>
 
 

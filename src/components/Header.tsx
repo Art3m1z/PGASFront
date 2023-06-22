@@ -56,9 +56,9 @@ export const AdminHeader: FC = () => {
             <i className='material-icons'>menu</i>
           </a>
           <ul className='right hide-on-med-and-down'>
-            <li>
+            {/* <li>
               <NavLink to='/admin/criterions/'>Критерии</NavLink>
-            </li>
+            </li> */}
             <li>
               <NavLink to='/admin/notifications/'>Объявления</NavLink>
             </li>

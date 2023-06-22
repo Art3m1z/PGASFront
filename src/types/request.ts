@@ -84,7 +84,7 @@ export interface IInfoMiracle {
   typeMiracle: string
   document: File | null | undefined
   documentTitle: string | undefined
-  dataId: number | undefined
+  dataId: number 
 }
 
 

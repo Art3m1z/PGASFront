@@ -8,6 +8,7 @@ import '../../index.css'
 import { Checkbox } from '../../components/formFieldInput'
 import $api from '../../http'
 import { auto, left } from '@popperjs/core'
+import axios from 'axios'
 
 export const StudentRequestListPage: FC = () => {
   const params = useParams()
@@ -23,6 +24,7 @@ export const StudentRequestListPage: FC = () => {
 
   //   setState({...state, nominationRef: event.target.value.trim()});
   // }
+
 
   const { id, financingSource } = useContext(AuthContext)
   //const qs = requests.filter(r => r.student.id == id)
@@ -146,8 +148,6 @@ export const StudentRequestListPage: FC = () => {
                       onClick={() => {
                         if (r.status == "Черновик") {
                           removeRequest(r.id.toString())
-                          fetchRequests()
-                          fetchCompanies()
                           fetchRequests()
                         } else {
                           alert('Удалять заявление можно при статусе Черновик')

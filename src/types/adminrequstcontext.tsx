@@ -6,6 +6,16 @@ import { IDataInfoMiracle } from './request'
 
 
 const fetchPagginatedRequests = (currentPage:number) => {}
+const addComment = (
+  id: number,
+  name: string,
+  imageUrl: string,
+  text: string,
+  role: Role,
+  userId: number
+ )=>{ }
+ const setStatus = (id:number, status: string) => {}
+
 interface INomination {
   id: string
   name: string
@@ -70,4 +80,6 @@ export interface IRequestPagState {
   count: number
 
   fetchPagginatedRequests: typeof fetchPagginatedRequests
+  addComment: typeof addComment
+  setStatus: typeof setStatus
 }

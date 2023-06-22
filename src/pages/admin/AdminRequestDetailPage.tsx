@@ -16,9 +16,8 @@ export const AdminRequestDetailPage: FC = () => {
   const messageRef = useRef(null)
   const btnRef = useRef(null)
   //const [loading, setLoading] = useState(false)
-  const [requestDetail, setRequestDetail] = useState<IRequestDetail>();
-  const {addComment, setStatus} = useContext(RequestContext)
-  const { requests, count, nominations, statuses } = useContext(AdminRequestPaginateContext)
+  // const [requestDetail, setRequestDetail] = useState<IRequestDetail>();
+  const { requests, count, nominations, statuses, fetchPagginatedRequests,addComment, setStatus } = useContext(AdminRequestPaginateContext)
 
   const { fio, avatarUrl, role, id } = useContext(AuthContext)
   
@@ -39,7 +38,7 @@ export const AdminRequestDetailPage: FC = () => {
         "score": score,
     })
   }
-  console.log(request)
+  
   // const fetchDetailRequest = async () => {
   //   setLoading(true)
   //   const resp = await $api.get(`/api/requests/`).then((resp) => {console.log(resp.data); setLoading(false)})
@@ -98,8 +97,8 @@ export const AdminRequestDetailPage: FC = () => {
           classes: 'red darken-4',
         })
 
-      addComment(requestDetail?.id!, fio, avatarUrl, message, role, id)
-      // fetchDetailRequest()
+      addComment(request?.id!, fio, avatarUrl, message, role, id)
+      // fetchDetailRequest() 
       setMessage('')
       M.toast({
         html: 'Вы успешно оставили комментарий!',
@@ -112,14 +111,18 @@ export const AdminRequestDetailPage: FC = () => {
       // })
     }
   }
-  function formatDate(date: string) {
-    let d = new Date(date);
-    const formatDate = d.getDate() < 10 ? `0${d.getDate()}`:d.getDate();
-    const formatMonth = d.getMonth() < 10 ? `0${d.getMonth()}`: d.getMonth();
-    const formattedDate = [d.getFullYear(), formatMonth, formatDate].join('-');
-    return formattedDate;
+  function formatDate(date: string | number | Date) {
+    let d = new Date(date),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2)
+      month = '0' + month;
+    if (day.length < 2)
+      day = '0' + day;
+    return [year, month, day].join('-');;
   }
- 
   if (!request) {
     return (
       <>
@@ -272,16 +275,15 @@ export const AdminRequestDetailPage: FC = () => {
         </button> */}
         <h3 className='mt-4'>Комментарии</h3>
         <div>
-          {requestDetail?.comments?.map((c, idx) => {
+          {request?.comments?.map((c, idx) => {
             return (
               <div key={idx} className='comment'>
                 <div className='avatar'>
                   {/* <img src={c.imageUrl} alt='avatar' /> */}
-                  <span>{c.student ?`${c.student.lastname} ${c.student.firstname} ${c.student.patronymic}`
-                    : `${c.admin.lastname} ${c.admin.firstname} ${c.admin.patronymic}`}</span>
+                  <span>{c.name }</span>
                 </div>
                 <p>{c.text}</p>
-                <small>{c.created_at.toLocaleString().slice(0,10)+", "+ c.created_at.toLocaleString().slice(11,16)}</small>
+                <small>{_(c.sendedDate)}</small>
                 {/* {console.log(c.sendedDate?.toLocaleString())} */}
               </div>
             )
@@ -312,7 +314,7 @@ export const AdminRequestDetailPage: FC = () => {
       {!(
         // subRequest?.status === 'Победитель' ||
         // subRequest?.status === 'Принято' ||
-        (requestDetail?.last_status === 'Удалено')
+        (request?.status === 'Удалено')
       ) ? (
         <div className='fixed-action-btn toolbar' ref={btnRef}>
           <a className='btn-floating btn-large light-blue darken-4 pulse'>
@@ -485,6 +487,7 @@ export const AdminRequestDetailPage: FC = () => {
             style={{ float: 'right' }}
             onClick={() => {
               sendHandler()
+              
               //navigate('/admin/requests/')
             }}
           >
